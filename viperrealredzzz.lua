@@ -2608,6 +2608,16 @@ spawn(function()
 end)
 
 Main:AddToggle({
+    Name = "Accept Quests",
+    Flag = "Main/AcceptQuest",
+    Description = "",
+    Default = false,
+    Callback = function(Value)
+        _G.AcceptQuestC = Value
+    end
+})
+
+Main:AddToggle({
     Name = "Auto Soul Reaper [Fully]",
     Description = "",
     Default = false,
@@ -5126,6 +5136,9 @@ spawn(function()
     end
 end)
 
+
+
+
 Raids:AddToggle({
     Name = "Auto Awakening",
     Flag = "Raids/AutoAwakening",
@@ -5145,6 +5158,113 @@ spawn(function()
         end)
     end
 end)
+
+
+
+Raids:AddSection("Fruit Stack")
+
+Raids:AddToggle({
+    Name = "Auto Random Fruit",
+    Flag = "Fruit/AutoRandomFruit",
+    Default = false,
+    Callback = function(Value)
+        _G.Random_Auto = Value
+    end
+})
+
+spawn(function()
+    while wait(Sec) do
+        pcall(function()
+            if _G.Random_Auto then
+                replicated.Remotes.CommF_:InvokeServer('Cousin', 'Buy')
+            end
+        end)
+    end
+end)
+
+Raids:AddToggle({
+    Name = "Auto Drop Fruit",
+    Flag = "Fruit/AutoDropFruit",
+    Default = false,
+    Callback = function(Value)
+        _G.DropFruit = Value
+    end
+})
+
+spawn(function()
+    while wait(Sec) do
+        if _G.DropFruit then
+            pcall(function()
+                DropFruits()
+            end)
+        end
+    end
+end)
+
+Raids:AddToggle({
+    Name = "Auto Store Fruit",
+    Flag = "Fruit/AutoStoreFruit",
+    Default = false,
+    Callback = function(Value)
+        _G.StoreF = Value
+    end
+})
+
+spawn(function()
+    while wait(Sec) do
+        if _G.StoreF then
+            pcall(function()
+                UpdStFruit()
+            end)
+        end
+    end
+end)
+
+Raids:AddToggle({
+    Name = "Auto Tween to Fruit",
+    Flag = "Fruit/AutoTweenToFruit",
+    Description = "Automatic Tween To Get Devil Fruit",
+    Default = false,
+    Callback = function(Value)
+        _G.TwFruits = Value
+    end
+})
+
+spawn(function()
+    while wait(Sec) do
+        if _G.TwFruits then
+            pcall(function()
+                for cg, ch in pairs(workspace:GetChildren()) do
+                    if string.find(ch.Name, 'Fruit') then
+                        _tp(ch.Handle.CFrame)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+Raids:AddToggle({
+    Name = "Auto Collect Fruit",
+    Flag = "Fruit/AutoCollectFruit",
+    Description = "Automatic Bring Devil Fruit",
+    Default = false,
+    Callback = function(Value)
+        _G.InstanceF = Value
+    end
+})
+
+spawn(function()
+    while wait(Sec) do
+        if _G.InstanceF then
+            pcall(function()
+                collectFruits(_G.InstanceF)
+            end)
+        end
+    end
+end)
+
+
 
 Sea:AddSection("Sea Events")
 
@@ -5184,18 +5304,13 @@ Sea:AddToggle({
     Default = false,
     Callback = function(Value)
         _G.AutoBuyBoat = Value
-    end
-})
-
-spawn(function()
-    while wait(Sec) do
-        if _G.AutoBuyBoat then
+        if Value then
             pcall(function()
                 replicated.Remotes.CommF_:InvokeServer('BuyBoat', _G.SelectedBoat)
             end)
         end
     end
-end)
+})
 
 Sea:AddDropdown({
     Name = "Choose Sea Level",
