@@ -2424,6 +2424,23 @@ Items = Window:AddTab({ Title = "Tab Shop", Icon = "" })
 Items:AddSection("Buy Melee")
 
 Items:AddButton({
+    Title = 'Buy Legendary Sword',
+    Description = '',
+    Callback = function()
+        replicated.Remotes.CommF_:InvokeServer('LegendarySwordDealer', '1')
+        replicated.Remotes.CommF_:InvokeServer('LegendarySwordDealer', '2')
+        replicated.Remotes.CommF_:InvokeServer('LegendarySwordDealer', '3')
+    end
+})
+Items:AddButton({
+    Title = 'Buy True Triple Katana Sword',
+    Description = '',
+    Callback = function()
+        replicated.Remotes.CommF_:InvokeServer('MysteriousMan', '2')
+    end
+})
+
+Items:AddButton({
     Title = "Black Leg",
     Callback = function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyBlackLeg")
@@ -2927,6 +2944,45 @@ function Hop()
     end
     Teleport()
 end
+
+Server:AddSection("Misc")
+
+Server:AddToggle("Bright", {
+    Title = "Turn on Full Bright",
+    Description = "",
+    Default = false,
+    Callback = function(ch)
+        bright = ch
+        if ch then
+            Lighting.Ambient = Color3.new(1, 1, 1)
+            Lighting.ColorShift_Bottom = Color3.new(1, 1, 1)
+            Lighting.ColorShift_Top = Color3.new(1, 1, 1)
+        else
+            Lighting.Ambient = Color3.new(0, 0, 0)
+            Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
+            Lighting.ColorShift_Top = Color3.new(0, 0, 0)
+        end
+    end
+})
+
+
+
+
+Server:AddButton({
+    Title = "Remove Sky Fog",
+    Callback = function()
+        local Lighting = game:GetService("Lighting")
+        if Lighting:FindFirstChild("LightingLayers") then
+            Lighting.LightingLayers:Destroy()
+        end
+        if Lighting:FindFirstChild("SeaTerrorCC") then
+            Lighting.SeaTerrorCC:Destroy()
+        end
+        if Lighting:FindFirstChild("FantasySky") then
+            Lighting.FantasySky:Destroy()
+        end
+    end
+})
 
 Combat = Window:AddTab({ Title = "Tab Esp\n  Setting Local Player", Icon = "" })
 
@@ -4562,6 +4618,661 @@ if Sea3 then
         end
     end)
 end
+
+Other = Window:AddTab({ Title = "Tab Farming Other", Icon = "" })
+
+
+
+aT = Other:AddParagraph({
+    Title = ' Number Cursed dual katana quests ',
+    Content = 'Quest Numbers :'
+})
+spawn(function()
+    while wait(0.2) do
+        if QuestYama_1 == true then
+            aT:SetDesc(' Quest Numbers : yama quest 1')
+        elseif QuestYama_2 == true then
+            aT:SetDesc(' Quest Numbers : yama quest 2')
+        elseif QuestYama_3 == true then
+            aT:SetDesc(' Quest Numbers : yama quest 3')
+        elseif QuestTushita_1 == true then
+            aT:SetDesc(' Quest Numbers : tushita quest 1')
+        elseif QuestTushita_2 == true then
+            aT:SetDesc(' Quest Numbers : tushita quest 2')
+        elseif QuestTushita_1 == true then
+            aT:SetDesc(' Quest Numbers: tushita quest 2')
+        elseif GetWP('Cursed Dual Katana') then
+            aT:SetDesc(' Quest Numbers: CDK done!!')
+        end
+    end
+end)
+
+Other:AddToggle("Q", {
+    Title = "Auto Get CDK [ Last Quest ]",
+    Description = "",
+    Default = false,
+    Callback = function(state)
+        _G.CDK = state
+    end
+})
+
+spawn(function()
+    while wait(Sec) do
+        pcall(function()
+            if _G.CDK then
+                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress', 'Good')
+                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress', 'Evil')
+                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'StartTrial', 'Boss')
+                local aV = GetConnectionEnemies('Cursed Skeleton Boss')
+                if aV then
+                    repeat
+                        wait()
+                        if plr.Character:FindFirstChild('Yama') or plr.Backpack:FindFirstChild('Yama') then
+                            EquipWeapon('Yama')
+                        elseif plr.Character:FindFirstChild('Tushita') or plr.Backpack:FindFirstChild('Tushita') then
+                            EquipWeapon('Tushita')
+                        end
+                        _tp(aV.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                    until not _G.CDK or not aV.Parent or aV.Humanoid.Health <= 0
+                else
+                    _tp(CFrame.new(- 12318.193359375, 601.9518432617188, - 6538.662109375))
+                    wait(0.5)
+                    _tp(workspace.Map.Turtle.Cursed.BossDoor.CFrame)
+                end
+            end
+        end)
+    end
+end)
+
+Other:AddToggle('Q', {
+    Title = 'Auto Yama CDK',
+    Description = '',
+    Default = false,
+    Callback = function(state)
+        _G.CDK_YM = state
+    end    
+})
+
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.CDK_YM then
+                if tostring(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'OpenDoor')) ~= 'opened' then
+                    replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'OpenDoor')
+                    replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'OpenDoor', true)
+                else
+                    if replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Finished == nil then
+                        replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'StartTrial', 'Evil')
+                        replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'StartTrial', 'Evil')
+                    elseif replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Finished == false then
+                        if tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == - 3 then
+                            QuestYama_1 = true
+                            QuestYama_2 = false
+                            QuestYama_3 = false
+                            repeat
+                                task.wait()
+                                if not workspace.Enemies:FindFirstChild('Forest Pirate') then
+                                    _tp(CFrame.new(- 13223.521484375, 428.1938171386719, - 7766.06787109375))
+                                else
+                                    local aW = GetConnectionEnemies('Forest Pirate')
+                                    if aW then
+                                        _tp(workspace.Enemies:FindFirstChild('Forest Pirate').HumanoidRootPart.CFrame)
+                                    end
+                                end
+                            until tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 1 or not _G.CDK_YM
+                        elseif tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == - 4 then
+                            QuestYama_1 = false
+                            QuestYama_2 = true
+                            QuestYama_3 = false
+                            for aW, aX in pairs(game:GetService('Players').LocalPlayer.QuestHaze:GetChildren()) do
+                                for aY, aZ in pairs(l) do
+                                    if string.find(aY, aX.Name) and aX.Value > 0 then
+                                        if (aZ.Position - Root.Position).Magnitude <= 1000 and workspace.Enemies:FindFirstChild(aY) then
+                                            for a_, a0 in pairs(workspace.Enemies:GetChildren()) do
+                                                if a0:FindFirstChild('HumanoidRootPart') and a0:FindFirstChild('Humanoid') and a0:FindFirstChild('Humanoid').Health > 0 and a0:FindFirstChild('HazeESP') then
+                                                    repeat
+                                                        wait()
+                                                        m.Kill(a0, _G.CDK_YM)
+                                                    until not _G.CDK_YM or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 2 or not a0:FindFirstChild('HazeESP') or a0.Humanoid.Health <= 0
+                                                end
+                                            end
+                                        else
+                                            _tp(aZ)
+                                        end
+                                    end
+                                end
+                            end
+                        elseif tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == - 5 then
+                            QuestYama_1 = false
+                            QuestYama_2 = false
+                            QuestYama_3 = true
+                            if workspace.Map:FindFirstChild('HellDimension') then
+                                if (Root.Position - workspace.Map.HellDimension.Spawn.Position).Magnitude <= 1000 then
+                                    for aW, aX in pairs(workspace.Map.HellDimension.Exit:GetChildren()) do
+                                        if tonumber(aW) == 2 then
+                                            repeat
+                                                task.wait()
+                                                Root.CFrame = workspace.Map.HellDimension.Exit.CFrame
+                                            until not _G.CDK_YM or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 3
+                                        end
+                                    end
+                                    EquipWeapon(_G.SelectWeapon)
+                                    if tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) ~= 3 then
+                                        repeat
+                                            task.wait()
+                                            repeat
+                                                task.wait()
+                                                _tp(workspace.Map.HellDimension.Torch1.Particles.CFrame)
+                                                for aW, aX in pairs(workspace.Map.HellDimension:GetDescendants()) do
+                                                    if aX:IsA('ProximityPrompt') then
+                                                        fireproximityprompt(aX)
+                                                    end
+                                                end
+                                            until (workspace.Map.HellDimension.Torch1.Particles.Position - Root.Position).Magnitude < 5
+                                            wait(2)
+                                            _G.T1Yama = true
+                                        until not _G.CDK_YM or _G.T1Yama or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 3
+                                        repeat
+                                            task.wait()
+                                            repeat
+                                                task.wait()
+                                                _tp(workspace.Map.HellDimension.Torch2.Particles.CFrame)
+                                                for aW, aX in pairs(workspace.Map.HellDimension:GetDescendants()) do
+                                                    if aX:IsA('ProximityPrompt') then
+                                                        fireproximityprompt(aX)
+                                                    end
+                                                end
+                                            until (workspace.Map.HellDimension.Torch2.Particles.Position - Root.Position).Magnitude < 5
+                                            wait(2)
+                                            _G.T2Yama = true
+                                        until _G.T2Yama or _G.CDK_YM == false or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 3
+                                        repeat
+                                            wait()
+                                            repeat
+                                                task.wait()
+                                                _tp(workspace.Map.HellDimension.Torch3.Particles.CFrame)
+                                                for aW, aX in pairs(workspace.Map.HellDimension:GetDescendants()) do
+                                                    if aX:IsA('ProximityPrompt') then
+                                                        fireproximityprompt(aX)
+                                                    end
+                                                end
+                                            until (workspace.Map.HellDimension.Torch3.Particles.Position - Root.Position).Magnitude < 5
+                                            wait(2)
+                                            _G.T3Yama = true
+                                        until _G.T3Yama or _G.CDK_YM == false or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 3
+                                    end
+                                    for aW, aX in pairs(workspace.Enemies:GetChildren()) do
+                                        if (aX:FindFirstChild('HumanoidRootPart').Position - workspace.Map.HellDimension.Spawn.Position).Magnitude <= 300 then
+                                            if aX:FindFirstChild('HumanoidRootPart') and aX:FindFirstChild('Humanoid') and aX:FindFirstChild('Humanoid').Health > 0 then
+                                                repeat
+                                                    task.wait()
+                                                    m.Kill(aX, _G.CDK_YM)
+                                                until not _G.CDK_YM or aX.Humanoid.Health <= 0 or not aX.Parent or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 3
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.CDK_YM then
+                if tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == - 5 then
+                    if not workspace.Map:FindFirstChild('HellDimension') or (Root.Position - workspace.Map.HellDimension.Spawn.Position).Magnitude > 1000 then
+                        local aW = GetConnectionEnemies('Soul Reaper')
+                        if aW then
+                            repeat
+                                task.wait()
+                                _tp(aW.HumanoidRootPart.CFrame)
+                            until aW.Humanoid.Health <= 0 or not _G.CDK_YM or not aW.Parent or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Evil) == 3 or (workspace.Map:FindFirstChild('HellDimension') and (Root.Position - workspace.Map.HellDimension.Spawn.Position).Magnitude <= 1000)
+                        elseif plr.Backpack:FindFirstChild('Hallow Essence') or plr.Character:FindFirstChild('Hallow Essence') then
+                            repeat
+                                _tp(CFrame.new(- 8932.322265625, 146.83154296875, 6062.55078125))
+                                task.wait()
+                            until (CFrame.new(- 8932.322265625, 146.83154296875, 6062.55078125).Position - Root.Position).Magnitude <= 8
+                            EquipWeapon('Hallow Essence')
+                        elseif replicated:FindFirstChild('Soul Reaper') and replicated:FindFirstChild('Soul Reaper').Humanoid.Health > 0 then
+                            _tp(replicated:FindFirstChild('Soul Reaper').HumanoidRootPart.CFrame)
+                        else
+                            if replicated.Remotes.CommF_:InvokeServer('Bones', 'Check') < 50 and not workspace.Enemies:FindFirstChild('Soul Reaper') and not replicated:FindFirstChild('Soul Reaper') and not workspace.Map:FindFirstChild('HellDimension') then
+                                if workspace.Enemies:FindFirstChild('Reborn Skeleton') or workspace.Enemies:FindFirstChild('Living Zombie') or workspace.Enemies:FindFirstChild('Domenic Soul') or workspace.Enemies:FindFirstChild('Posessed Mummy') then
+                                    for aX, aY in pairs(workspace.Enemies:GetChildren()) do
+                                        if aY.Name == 'Reborn Skeleton' or aY.Name == 'Living Zombie' or aY.Name == 'Demonic Soul' or aY.Name == 'Posessed Mummy' then
+                                            if aY:FindFirstChild('HumanoidRootPart') and aY:FindFirstChild('Humanoid') and aY:FindFirstChild('Humanoid').Health > 0 then
+                                                repeat
+                                                    task.wait()
+                                                    m.Kill(aY, _G.CDK_YM)
+                                                until not _G.CDK_YM or aY.Humanoid.Health <= 0 or not aY.Parent
+                                            end
+                                        end
+                                    end
+                                else
+                                    _tp(CFrame.new(- 9515.2255859375, 164.0062255859375, 5785.38330078125))
+                                end
+                            else
+                                replicated.Remotes.CommF_:InvokeServer('Bones', 'Buy', 1, 1)
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+Other:AddToggle('Q', {
+    Title = 'Auto Tushita CDK',
+    Description = '',
+    Default = false,
+    Callback = function(state)
+        _G.CDK_TS = state
+    end    
+})
+
+spawn(function()
+    while wait() do
+        pcall(function()
+            if _G.CDK_TS then
+                if tostring(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'OpenDoor')) ~= 'opened' then
+                    wait(0.7)
+                    replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'OpenDoor')
+                    wait(0.3)
+                    replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'OpenDoor', true)
+                else
+                    if replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Finished == nil then
+                        replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'StartTrial', 'Good')
+                    elseif replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Finished == false then
+                        if tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == - 3 then
+                            QuestTushita_1 = true
+                            QuestTushita_2 = false
+                            QuestTushita_3 = false
+                            repeat
+                                wait()
+                                _tp(CFrame.new(- 4602.5107421875, 16.446542739868164, - 2880.998046875))
+                            until (CFrame.new(- 4602.5107421875, 16.446542739868164, - 2880.998046875).Position - game:GetService('Players').LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 3 or not _G.CDK_TS or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == 1
+                            if (CFrame.new(- 4602.5107421875, 16.446542739868164, - 2880.998046875).Position - game:GetService('Players').LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 10 then
+                                wait(0.7)
+                                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'BoatQuest', workspace.NPCs:FindFirstChild('Luxury Boat Dealer'), 'Check')
+                                wait(0.5)
+                                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'BoatQuest', workspace.NPCs:FindFirstChild('Luxury Boat Dealer'))
+                            end
+                            wait(1)
+                            repeat
+                                wait()
+                                _tp(CFrame.new(4001.185302734375, 10.089399337768555, - 2654.86328125))
+                            until (CFrame.new(4001.185302734375, 10.089399337768555, - 2654.86328125).Position - game:GetService('Players').LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 3 or not _G.CDK_TS or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == 1
+                            if (CFrame.new(4001.185302734375, 10.089399337768555, - 2654.86328125).Position - game:GetService('Players').LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 10 then
+                                wait(0.7)
+                                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'BoatQuest', workspace.NPCs:FindFirstChild('Luxury Boat Dealer'), 'Check')
+                                wait(0.5)
+                                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'BoatQuest', workspace.NPCs:FindFirstChild('Luxury Boat Dealer'))
+                            end
+                            wait(1)
+                            repeat
+                                wait()
+                                _tp(CFrame.new(- 9530.763671875, 7.245208740234375, - 8375.5087890625))
+                            until (CFrame.new(- 9530.763671875, 7.245208740234375, - 8375.5087890625).Position - game:GetService('Players').LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 3 or not _G.CDK_TS or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == 1
+                            if (CFrame.new(- 9530.763671875, 7.245208740234375, - 8375.5087890625).Position - game:GetService('Players').LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 10 then
+                                wait(0.7)
+                                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'BoatQuest', workspace.NPCs:FindFirstChild('Luxury Boat Dealer'), 'Check')
+                                wait(0.5)
+                                replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'BoatQuest', workspace.NPCs:FindFirstChild('Luxury Boat Dealer'))
+                            end
+                            wait(1)
+                        elseif tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == - 4 then
+                            QuestTushita_1 = false
+                            QuestTushita_2 = true
+                            QuestTushita_3 = false
+                            repeat
+                                wait()
+                                _G.AutoRaidCastle = true
+                            until not _G.CDK_TS or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == 2
+                            _G.AutoRaidCastle = false
+                        elseif tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == - 5 then
+                            QuestTushita_1 = false
+                            QuestTushita_2 = false
+                            QuestTushita_3 = true
+                            if workspace.Enemies:FindFirstChild('Cake Queen') then
+                                for aX, aY in pairs(workspace.Enemies:GetChildren()) do
+                                    if aY.Name == 'Cake Queen' then
+                                        if aY:FindFirstChild('Humanoid') and aY:FindFirstChild('HumanoidRootPart') and aY.Humanoid.Health > 0 then
+                                            repeat
+                                                wait()
+                                                m.Kill(aY, _G.CDK_TS)
+                                            until not _G.CDK_TS or not aY.Parent or aY.Humanoid.Health <= 0 or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == 3
+                                        end
+                                    end
+                                end
+                            elseif replicated:FindFirstChild('Cake Queen') and replicated:FindFirstChild('Cake Queen').Humanoid.Health > 0 then
+                                _tp(replicated:FindFirstChild('Cake Queen').HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+                            else
+                                if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - workspace.Map.HeavenlyDimension.Spawn.Position).Magnitude <= 1000 then
+                                    for aX, aY in pairs(workspace.Map.HeavenlyDimension.Exit:GetChildren()) do
+                                        Ex = aX
+                                    end
+                                    if Ex == 2 then
+                                        repeat
+                                            wait()
+                                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Map.HeavenlyDimension.Exit.CFrame
+                                        until not _G.CDK_TS or tonumber(replicated.Remotes.CommF_:InvokeServer('CDKQuest', 'Progress').Good) == 3
+                                    end
+                                    repeat
+                                        wait()
+                                        repeat
+                                            wait()
+                                            _tp(CFrame.new(- 22529.6171875, 5275.77392578125, 3873.5712890625))
+                                            for aX, aY in pairs(workspace.Map.HeavenlyDimension:GetDescendants()) do
+                                                if aY:IsA('ProximityPrompt') then
+                                                    fireproximityprompt(aY)
+                                                end
+                                            end
+                                        until (CFrame.new(- 22529.6171875, 5275.77392578125, 3873.5712890625).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 5
+                                        wait(2)
+                                        _G.DoneT1 = true
+                                    until not _G.CDK_TS or _G.DoneT1
+                                    repeat
+                                        wait()
+                                        repeat
+                                            wait()
+                                            _tp(CFrame.new(- 22637.291015625, 5281.365234375, 3749.28857421875))
+                                            for aX, aY in pairs(workspace.Map.HeavenlyDimension:GetDescendants()) do
+                                                if aY:IsA('ProximityPrompt') then
+                                                    fireproximityprompt(aY)
+                                                end
+                                            end
+                                        until (CFrame.new(- 22637.291015625, 5281.365234375, 3749.28857421875).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 5
+                                        wait(2)
+                                        _G.DoneT2 = true
+                                    until _G.DoneT2 or _G.CDK_TS == false
+                                    repeat
+                                        wait()
+                                        repeat
+                                            task.wait()
+                                            _tp(CFrame.new(- 22791.14453125, 5277.16552734375, 3764.570068359375))
+                                            for aX, aY in pairs(workspace.Map.HeavenlyDimension:GetDescendants()) do
+                                                if aY:IsA('ProximityPrompt') then
+                                                    fireproximityprompt(aY)
+                                                end
+                                            end
+                                        until (CFrame.new(- 22791.14453125, 5277.16552734375, 3764.570068359375).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 5
+                                        wait(2)
+                                        _G.DoneT3 = true
+                                    until _G.DoneT3 or _G.CDK_TS == false
+                                    for aX, aY in pairs(workspace.Enemies:GetChildren()) do
+                                        if (aY:FindFirstChild('HumanoidRootPart').Position - CFrame.new(- 22695.7012, 5270.93652, 3814.42847, 0.11794927, 3.32185834e-8, 0.99301964, - 8.73070718E-8, 1, - 2.30819008E-8, - 0.99301964, - 8.3975138E-8, 0.11794927).Position).Magnitude <= 300 then
+                                            if aY:FindFirstChild('HumanoidRootPart') and aY:FindFirstChild('Humanoid') and aY:FindFirstChild('Humanoid').Health > 0 then
+                                                repeat
+                                                    wait()
+                                                    m.Kill(aY, _G.CDK_TS)
+                                                until not _G.CDK_TS or aY.Humanoid.Health <= 0 or not aY.Parent
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+Other:AddSection("Bartillo")
+
+Other:AddToggle("Bartillo", {
+    Title = "Auto Done Bartilo Quest",
+    Default = false,
+    Callback = function(Value)
+        _G.Bartilo_Quest = Value
+    end
+})
+
+-- Auto Bartilo Quest Logic
+spawn(function()
+    while wait(Sec) do
+        pcall(function()
+            if _G.CitizenQuest then
+                if Lv >= 1800 and replicated.Remotes.CommF_:InvokeServer('CitizenQuestProgress').KilledBandits == false then
+                    if string.find(plr.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, 'Forest Pirate') and string.find(plr.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, '50') and plr.PlayerGui.Main.Quest.Visible == true then
+                        local G = GetConnectionEnemies('Forest Pirate')
+                        if G then
+                            repeat
+                                task.wait()
+                                m.Kill(G, _G.CitizenQuest)
+                            until _G.CitizenQuest == false or not G.Parent or G.Humanoid.Health <= 0 or plr.PlayerGui.Main.Quest.Visible == false
+                        else
+                            _tp(CFrame.new(- 13206.452148438, 425.89199829102, - 7964.5537109375))
+                        end
+                    else
+                        _tp(CFrame.new(- 12443.8671875, 332.40396118164, - 7675.4892578125))
+                        if (Vector3.new(- 12443.8671875, 332.40396118164, - 7675.4892578125) - plr.Character.HumanoidRootPart.Position).Magnitude <= 30 then
+                            wait(1.5)
+                            replicated.Remotes.CommF_:InvokeServer('StartQuest', 'CitizenQuest', 1)
+                        end
+                    end
+                elseif Lv >= 1800 and replicated.Remotes.CommF_:InvokeServer('CitizenQuestProgress').KilledBoss == false then
+                    local G = GetConnectionEnemies('Captain Elephant')
+                    if plr.PlayerGui.Main.Quest.Visible and string.find(plr.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, 'Captain Elephant') and plr.PlayerGui.Main.Quest.Visible == true then
+                        if G then
+                            repeat
+                                task.wait()
+                                m.Kill(G, _G.CitizenQuest)
+                            until _G.CitizenQuest == false or G.Humanoid.Health <= 0 or not G.Parent or plr.PlayerGui.Main.Quest.Visible == false
+                        else
+                            _tp(CFrame.new(- 13374.889648438, 421.27752685547, - 8225.208984375))
+                        end
+                    else
+                        _tp(CFrame.new(- 12443.8671875, 332.40396118164, - 7675.4892578125))
+                        if (CFrame.new(- 12443.8671875, 332.40396118164, - 7675.4892578125).Position - plr.Character.HumanoidRootPart.Position).Magnitude <= 4 then
+                            wait(1.5)
+                            replicated.Remotes.CommF_:InvokeServer('CitizenQuestProgress', 'Citizen')
+                        end
+                    end
+                elseif Lv >= 1800 and replicated.Remotes.CommF_:InvokeServer('CitizenQuestProgress', 'Citizen') == 2 then
+                    _tp(CFrame.new(- 12512.138671875, 340.39279174805, - 9872.8203125))
+                end
+            end
+        end)
+    end
+end)
+
+
+Other:AddSection("Observation")
+
+Other:AddToggle("V2Obs", {
+    Title = "Auto Observation V2",
+    Default = false,
+    Callback = function(v)
+        _G.AutoKenVTWO = v
+    end
+})
+
+spawn(function()
+    while wait(Sec) do
+        if _G.AutoKenVTWO then
+            pcall(function()
+                local ae = CFrame.new(-12444.78515625, 332.40396118164, -7673.1806640625)
+                local af = 'Kuy'
+                local ag = CFrame.new(-10920.125, 624.20275878906, -10266.995117188)
+                local ah = CFrame.new(-13277.568359375, 370.34185791016, -7821.1572265625)
+                local ai = CFrame.new(-13493.12890625, 318.89553833008, -8373.7919921875)
+
+                if plr.PlayerGui.Main.Quest.Visible == true and string.find(plr.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, 'Defeat 50 Forest Pirates') then
+                    local aj = GetConnectionEnemies('Forest Pirate')
+                    if aj then
+                        repeat wait()
+                            m.Kill(aj, _G.AutoKenVTWO)
+                        until not _G.AutoKenVTWO or aj.Humanoid.Health <= 0 or plr.PlayerGui.Main.Quest.Visible == false
+                    else
+                        _tp(ah)
+                    end
+                elseif plr.PlayerGui.Main.Quest.Visible == true then
+                    local aj = GetConnectionEnemies('Captain Elephant')
+                    if aj then
+                        repeat wait()
+                            m.Kill(aj, _G.AutoKenVTWO)
+                        until not _G.AutoKenVTWO or aj.Humanoid.Health <= 0 or plr.PlayerGui.Main.Quest.Visible == false
+                    else
+                        _tp(ai)
+                    end
+                elseif plr.PlayerGui.Main.Quest.Visible == false then
+                    replicated.Remotes.CommF_:InvokeServer('CitizenQuestProgress', 'Citizen')
+                    wait(0.1)
+                    replicated.Remotes.CommF_:InvokeServer('StartQuest', 'CitizenQuest', 1)
+                end
+
+                if replicated.Remotes.CommF_:InvokeServer('CitizenQuestProgress', 'Citizen') == 2 then
+                    _tp(CFrame.new(-12513.51953125, 340.1137390136719, -9873.048828125))
+                end
+
+                if not plr.Backpack:FindFirstChild('Fruit Bowl') or not plr.Character:FindFirstChild('Fruit Bowl') then
+                    if not GetBP('Fruit Bowl') then
+                        if not GetBP('Apple') then
+                            replicated.Remotes.CommF_:InvokeServer('requestEntrance', Vector3.new(-12471.169921875, 374.94024658203, -7551.677734375))
+                            for aj, ak in pairs(workspace:GetDescendants()) do
+                                if ak.Name == 'Apple' then
+                                    ak.Handle.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1, 10)
+                                    wait()
+                                    firetouchinterest(plr.Character.HumanoidRootPart, ak.Handle, 0)
+                                    wait()
+                                end
+                            end
+                        elseif not GetBP('Banana') then
+                            _tp(CFrame.new(2286.0078125, 73.13391876220703, -7159.80908203125))
+                            for aj, ak in pairs(workspace:GetDescendants()) do
+                                if ak.Name == 'Banana' then
+                                    ak.Handle.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1, 10)
+                                    wait()
+                                    firetouchinterest(plr.Character.HumanoidRootPart, ak.Handle, 0)
+                                    wait()
+                                end
+                            end
+                        elseif not GetBP('Pineapple') then
+                            _tp(CFrame.new(-712.8272705078125, 98.5770492553711, 5711.9541015625))
+                            for aj, ak in pairs(workspace:GetDescendants()) do
+                                if ak.Name == 'Pineapple' then
+                                    ak.Handle.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.new(0, 1, 10)
+                                    wait()
+                                    firetouchinterest(plr.Character.HumanoidRootPart, ak.Handle, 0)
+                                    wait()
+                                end
+                            end
+                        end
+                    end
+
+                    if plr.Backpack:FindFirstChild('Banana') and plr.Backpack:FindFirstChild('Apple') and plr.Backpack:FindFirstChild('Pineapple') or plr:FindFirstChild('Banana') and plr:FindFirstChild('Apple') and plr:FindFirstChild('Pineapple') then
+                        repeat wait()
+                            _tp(ae)
+                        until _G.AutoKenVTWO or plr.Character.HumanoidRootPart.CFrame == ae
+                        replicated.Remotes.CommF_:InvokeServer('CitizenQuestProgress', 'Citizen')
+                    end
+
+                    if plr.Backpack:FindFirstChild('Fruit Bowl') or plr.Character:FindFirstChild('Fruit Bowl') then
+                        if plr.Character.HumanoidRootPart.CFrame ~= ag then
+                            _tp(ag)
+                        elseif plr.Character.HumanoidRootPart.CFrame == ag then
+                            replicated.Remotes.CommF_:InvokeServer('KenTalk2', 'Start')
+                            wait(0.1)
+                            replicated.Remotes.CommF_:InvokeServer('KenTalk2', 'Buy')
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+
+
+Other:AddToggle("FarmObs", {
+    Title = "Auto Farm Observation",
+    Default = false,
+    Callback = function(value)
+        _G.obsFarm = value
+    end
+})
+
+spawn(function()
+    while wait(0.2) do
+        pcall(function()
+            if _G.obsFarm then
+                replicated.Remotes.CommE:FireServer("Ken", true)
+                if plr:GetAttribute("KenDodgesLeft") == 0 then
+                    KenTest = false
+                elseif plr:GetAttribute("KenDodgesLeft") > 0 then
+                    replicated.Remotes.CommE:FireServer("Ken", true)
+                    KenTest = true
+                end
+            end
+        end)
+    end
+end)
+
+spawn(function()
+    while wait(0.2) do
+        pcall(function()
+            if _G.obsFarm then
+                if World1 then
+                    local enemy = workspace.Enemies:FindFirstChild("Galley Captain")
+                    if enemy then
+                        if KenTest then
+                            repeat wait()
+                                plr.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(3, 0, 0)
+                            until not _G.obsFarm or not KenTest
+                        else
+                            repeat wait()
+                                plr.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0)
+                            until not _G.obsFarm or KenTest
+                        end
+                    else
+                        _tp(CFrame.new(5533.29785, 88.1079102, 4852.3916))
+                    end
+                elseif Sea2 then
+                    local enemy = workspace.Enemies:FindFirstChild("Lava Pirate")
+                    if enemy then
+                        if KenTest then
+                            repeat wait()
+                                plr.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(3, 0, 0)
+                            until not _G.obsFarm or not KenTest
+                        else
+                            repeat wait()
+                                plr.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0)
+                            until not _G.obsFarm or KenTest
+                        end
+                    else
+                        _tp(CFrame.new(-5478.39209, 15.9775667, -5246.9126))
+                    end
+                elseif Sea3 then
+                    local enemy = workspace.Enemies:FindFirstChild("Venomous Assailant")
+                    if enemy then
+                        if KenTest then
+                            repeat wait()
+                                _tp(enemy.HumanoidRootPart.CFrame * CFrame.new(3, 0, 0))
+                            until not _G.obsFarm or not KenTest
+                        else
+                            repeat wait()
+                                _tp(enemy.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0))
+                            until not _G.obsFarm or KenTest
+                        end
+                    else
+                        _tp(CFrame.new(4530.3540039063, 656.75695800781, -131.60952758789))
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+
+
 
 
 Teleport = Window:AddTab({ Title = "Tab Travel", Icon = "" })
