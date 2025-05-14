@@ -1851,9 +1851,9 @@ EspPly = function()
                         cg.BackgroundTransparency = 1
                         cg.TextStrokeTransparency = 0.5
                         if ce.Team == TeamSelf then
-                            cg.TextColor3 = Color3.new(0, 0, 254)
+                            cg.TextColor3 = Color3.new(1, 1, 1)
                         else
-                            cg.TextColor3 = Color3.new(255, 0, 0)
+                            cg.TextColor3 = Color3.new(1, 1, 1)
                         end
                     else
                         ce.Character.Head['NameEsp' .. Number].TextLabel.Text = (ce.Data.Level.Value .. ' | ' .. ce.Name .. ' | ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position - ce.Character.Head.Position).Magnitude / 3) .. ' M\nHealth : ' .. round(ce.Character.Humanoid.Health * 100 / ce.Character.Humanoid.MaxHealth) .. '%')
@@ -7127,7 +7127,81 @@ spawn(function()
 end)
 
 Raids:AddToggle("CompleteRaid", {
-    Title = "Auto Complete Raid [Full]",
+    Title = "Auto Kaitun Raid",
+    Description = "Auto Start, Kill Mob, Go Next Island",
+    Default = false,
+    Callback = function(Value)
+        _G.Raiding = Value
+        _G.Auto_StartRaid = Value -- This links both functions to the same toggle
+    end
+})
+
+-- Auto Start Raid Function
+spawn(function()
+    while task.wait(1) do -- Using 1 second interval
+        if _G.KaitunRaid then
+            pcall(function()
+                if not plr.PlayerGui.Main.TopHUDList.RaidTimer.Visible and GetBP("Special Microchip") then
+                    if World2 then
+                        _tp(CFrame.new(-6438.73535, 250.645355, -4501.50684))
+                        wait(1) -- Add delay after teleporting before clicking
+                        fireclickdetector(workspace.Map.CircleIsland.RaidSummon2.Button.Main.ClickDetector)
+                    elseif World3 then
+                        replicated.Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(-5097.93164, 316.447021, -3142.66602))
+                        wait(1) -- Add delay after teleporting before clicking
+                        fireclickdetector(workspace.Map["Boat Castle"].RaidSummon2.Button.Main.ClickDetector)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Auto Complete Raid Function
+spawn(function()
+    while wait(2) do
+        if _G.Raiding then
+            pcall(function()
+                if plr.PlayerGui.Main.TopHUDList.RaidTimer.Visible == true then
+                    if workspace._WorldOrigin.Locations:FindFirstChild('Island 1') then
+                        local b7 = workspace.Enemies:GetChildren()
+                        if # b7 > 0 then
+                            for b8, b9 in pairs(workspace.Enemies:GetChildren()) do
+                                if (b9.HumanoidRootPart.Position - Root.Position).magnitude <= 2000 and b9.Humanoid.Health > 0 then
+                                    repeat
+                                        wait()
+                                        m.Kill(b9, _G.Raiding)
+                                    until not _G.Raiding or not b9.Parent or b9.Humanoid.Health <= 0 or not (workspace._WorldOrigin.Locations:FindFirstChild('Island 1')) or plr.PlayerGui.Main.TopHUDList.RaidTimer.Visible == false
+                                end
+                            end
+                        else
+                            if workspace._WorldOrigin.Locations:FindFirstChild('Island 1') then
+                                if workspace._WorldOrigin.Locations:FindFirstChild('Island 5') then
+                                    _tp(workspace._WorldOrigin.Locations['Island 5'].CFrame * CFrame.new(4, 65, 10))
+                                elseif workspace._WorldOrigin.Locations:FindFirstChild('Island 4') then
+                                    _tp(workspace._WorldOrigin.Locations['Island 4'].CFrame * CFrame.new(4, 65, 10))
+                                elseif workspace._WorldOrigin.Locations:FindFirstChild('Island 3') then
+                                    _tp(workspace._WorldOrigin.Locations['Island 3'].CFrame * CFrame.new(4, 65, 10))
+                                elseif workspace._WorldOrigin.Locations:FindFirstChild('Island 2') then
+                                    _tp(workspace._WorldOrigin.Locations['Island 2'].CFrame * CFrame.new(4, 65, 10))
+                                elseif workspace._WorldOrigin.Locations:FindFirstChild('Island 1') then
+                                    _tp(workspace._WorldOrigin.Locations['Island 1'].CFrame * CFrame.new(4, 65, 10))
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+
+
+
+Raids:AddToggle("CompleteRaid", {
+    Title = "Auto Complete Raid",
+    Description = "Kill Mobs And Go Next Island",
     Default = false,
     Callback = function(Value)
         _G.Raiding = Value
